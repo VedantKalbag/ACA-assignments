@@ -35,7 +35,7 @@ def block_audio(x,blockSize,hopSize,fs):
         time = np.array(ts)
     return(out,time)
 
-def comp_acf(inputVector, bIsNormalized=False):
+def comp_acf(inputVector, bIsNormalized=True):
     # Implement a function comp_acf(inputVector, bIsNormalized) 
     # which computes the autocorrelation function and returns the non-redundant (right) part of the result r. 
     # Normalization is controlled by parameter bIsNormalized. 
