@@ -182,4 +182,4 @@ def run_evaluation (complete_path_to_data_folder):
     errCentRms = np.sqrt(errCentRms/files)
     return errCentRms
 errCentRms = run_evaluation('assignment_1/trainData/')
-print(errCentRms)
+print(errCentRms[0])
