@@ -2,3 +2,5 @@
 *.wav
 */trainData
 */workspace.code-workspace
+*/*.pages
+*/*.pdf
