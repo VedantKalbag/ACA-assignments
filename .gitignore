@@ -1,9 +1,7 @@
 */*.code-workspace
 *.wav
 */trainData
-*/workspace.code-workspace
 workspace.code-workspace
 */*.pages
 */*.pdf
-*/chutiya.py
 /resources
