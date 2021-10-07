@@ -4,4 +4,4 @@
 workspace.code-workspace
 */*.pages
 */*.pdf
-/resources
+*/resources
