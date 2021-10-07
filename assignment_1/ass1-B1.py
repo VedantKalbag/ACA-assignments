@@ -181,6 +181,45 @@ def run_evaluation (complete_path_to_data_folder):
             errCentRms = errCentRms + (err ** 2)
     errCentRms = np.sqrt(errCentRms/files)
     return errCentRms
-errCentRms = run_evaluation('assignment_1/trainData/')
-print(errCentRms[0])
+#errCentRms = run_evaluation('assignment_1/trainData/')
+#print(errCentRms[0])
 
+#from scipy.io import wavfile
+#fs_wav, data_wav = wavfile.read("./data/filename.wav")
+def create_test_signal(fs):
+    f1=441
+    f2=882
+    t=1
+    samples1=np.arange(t * 44100)
+    samples2=np.arange(t * 44100)
+    sig_a=np.sin(2*np.pi*f1*samples1/fs)
+    sig_b=np.sin(2*np.pi*f2*samples2/fs)
+    sig=np.append(sig_a,sig_b)
+    return sig
+
+x = create_test_signal(44100)
+#print(x.shape)
+ground_truth = []
+for i in range(0,x.shape[0]):
+    if i%512 == 0:
+        if i <= 44100:
+            ground_truth.append(441)
+        if i > 44100:
+            ground_truth.append(882)
+ground_truth = np.array(ground_truth)
+f0,ts = track_pitch_acf(x,1025,512,44100)
+error=[]
+for i in range(0,ground_truth.shape[0]):
+    error.append(ground_truth[i] - f0[i])
+#error = ground_truth - f0
+error=np.array(error)
+print(error)
+plt.plot(f0)
+plt.plot(ground_truth)
+plt.plot(error)
+plt.xlabel('Block Number')
+plt.ylabel('Frequency (Hz)')
+plt.legend(['Estimated Frequency','Ground Truth','Error'])
+plt.ylim(-500,1000)
+plt.title('Estimated Frequency for the sinusoidal signal')
+plt.show()
