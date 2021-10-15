@@ -5,3 +5,5 @@ workspace.code-workspace
 */*.pages
 */*.pdf
 */resources
+*/.DS_Store
+.DS_Store
