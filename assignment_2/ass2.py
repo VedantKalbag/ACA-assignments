@@ -4,6 +4,7 @@ import os
 import math
 from matplotlib import pyplot as plt 
 
+print(os.getcwd())
 # blockSize=1024
 # hopSize=512
 # fs=44100
@@ -49,8 +50,6 @@ def calc_stft(xb,fs=44100):
         block= xb[i]
         # Apply Window to the block
         windowed_block = window * block 
-        # Pad zeros equal to length of the windowed block at the end
-        #windowed_block = np.append(windowed_block,np.zeros(block.shape[0]))
         stft_blk = np.fft.fft(windowed_block)
         #stft_blk = np.fft.rfft(windowed_block)
         freq=np.fft.fftfreq(block.size,1/fs)
@@ -58,14 +57,23 @@ def calc_stft(xb,fs=44100):
         stft_blk = np.abs(stft_blk)
         #stft_block = stft_blk[int((stft_blk.shape[0])/2):]
         stft_block = stft_blk[:int(((stft_blk.shape[0])/2)+1)]
-        stft_db = 10*np.log10(stft_block) # IS THIS CORRECT??
+        stft_db = 20*np.log10(stft_block) 
         stft[i]=stft_block#stft_db
     stft = np.array(stft)
     freqs=np.array(freqs)
     return stft,freqs
 
 # Q1-Spectral Centroid
-
+def extract_spectral_centroid(xb, fs):
+    centroids = np.zeros(xb.shape[0])
+    stft,freqs = calc_stft(xb,fs)
+    #np.sum(magnitudes*freqs) / np.sum(magnitudes)
+    for i in range(freqs.shape[0]):
+        centroid = np.sum(stft[i]*freqs[i]) / np.sum(stft[i])
+        centroids[i]=centroid
+        #centroids.append(centroid)
+    #centroids=np.array(centroids)
+    return centroids
 # Q1-RMS
 def extract_rms(xb):
     rms = np.zeros(xb.shape[0])
@@ -172,3 +180,72 @@ def normalize_zscore(featureData):
         mean = np.mean(featureData[i])
         normalized_matrix[i] = (featureData[i]-mean)/std
     return normalized_matrix
+
+def visualize_features(path):
+    blockSize = 1024
+    hopSize = 256
+    music = get_feature_data(path+'music_wav/',blockSize,hopSize)
+    speech = get_feature_data(path+'speech_wav/',blockSize,hopSize)
+    combo=np.concatenate([music,speech],axis=1)
+    combo_normalized = normalize_zscore(combo)
+
+    music_normalized = combo_normalized[:,:music.shape[1]]
+    speech_normalized = combo_normalized[:,music.shape[1]:music.shape[1]+speech.shape[1]]
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(8, 8))
+    ax1 = fig.add_subplot(321)
+    ax2 = fig.add_subplot(322)
+    ax3 = fig.add_subplot(323)
+    ax4 = fig.add_subplot(324)
+    ax5 = fig.add_subplot(325)
+
+    #Plot 1
+    ax1.scatter(music_normalized[0],music_normalized[6],color='red')
+    ax1.scatter(speech_normalized[0],speech_normalized[6],color='blue')
+
+    #Plot 2
+    ax2.scatter(music_normalized[8],music_normalized[4],color='red')
+    ax2.scatter(speech_normalized[8],speech_normalized[4],color='blue')
+
+    #Plot 3
+    ax3.scatter(music_normalized[2],music_normalized[3],color='red')
+    ax3.scatter(speech_normalized[2],speech_normalized[3],color='blue')
+
+    #Plot 4
+    ax4.scatter(music_normalized[5],music_normalized[7],color='red')
+    ax4.scatter(speech_normalized[5],speech_normalized[7],color='blue')
+
+    #Plot 5
+    ax5.scatter(music_normalized[1],music_normalized[9],color='red')
+    ax5.scatter(speech_normalized[1],speech_normalized[9],color='blue')
+
+    #Labelling axes and plots
+    ax1.set_xlabel('Spectral Centroid Mean')
+    ax1.set_ylabel('Spectral Crest Mean')
+    ax1.set_title('SC Mean vs SCR Mean')
+
+    ax2.set_xlabel('Spectral Flux Mean')
+    ax2.set_ylabel('Zero Crossing Rate Mean')
+    ax2.set_title('SF Mean vs ZCR Mean')
+
+    ax3.set_xlabel('RMS Mean')
+    ax3.set_ylabel('RMS Standard Deviation')
+    ax3.set_title('RMS Mean vs RMS Std')
+
+    ax4.set_xlabel('ZCR Standard Deviation')
+    ax4.set_ylabel('Spectral Crest Standard Deviation')
+    ax4.set_title('ZCR Std vs SCR Std')
+
+    ax5.set_xlabel('Spectral Centroid Standard Deviation')
+    ax5.set_ylabel('Spectral Flux Standard Deviation')
+    ax5.set_title('SC Std vs SF Std')
+
+
+    fig.legend(['music','speech'],loc='upper center')
+    plt.subplots_adjust( 
+                    wspace=0.5, 
+                    hspace=0.8)
+    plt.show()
+
+visualize_features('./assignment_2/resources/music_speech/')
